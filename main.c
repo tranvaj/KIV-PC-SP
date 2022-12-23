@@ -1,8 +1,12 @@
 #include <stdio.h>       //header section
 #include "hashtable.h"
+#include "bayes.h"
 
 int main()             //main section
 {
+    int count = 0;
+    load_file("data/train/ham1.txt", &count);
+
     hashTable * h = create_hashtable(HASHTABLE_CAPACITY);
 
     add_item(h,"koza");

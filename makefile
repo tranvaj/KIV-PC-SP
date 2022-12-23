@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -g
-OBJS=hashtable.o main.o
+OBJS=hashtable.o main.o bayes.o
 EXE=bayer.EXE
 
 $(EXE): $(OBJS)

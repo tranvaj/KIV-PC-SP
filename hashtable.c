@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 #include "hashtable.h"
-#define HASHTABLE_CAPACITY_INIT 257
 #define WORD_LEN 256
+#define INCREASE_CONSTANT 2
+#define MAX_BUCKET_SIZE 10
 
-hashTable *create_hashtable(){
-    uint capacity = HASHTABLE_CAPACITY_INIT;
+hashTable *create_hashtable(uint capacity){
     hashTable *ht;
     node **temp;
     if(!capacity) return NULL;
@@ -19,11 +19,50 @@ hashTable *create_hashtable(){
     return ht;
 }
 
+int rehash(hashTable *h){
+    int i, index;
+    uint new_capacity;
+    node *curr, **temp;
+
+    new_capacity = h->capacity * INCREASE_CONSTANT;
+    temp = (node **) calloc(new_capacity, sizeof(node *));
+
+    if(!h || !temp) return 0;
+
+    for(i = 0; i < h->capacity; i++){
+        curr = h->arr[i];
+        while(curr){
+            node *curr_next = curr->next;
+            index = hash_func(curr->key, new_capacity);
+            
+            if(temp[index]){
+                curr->next = temp[index];
+                temp[index] = curr;
+            } else {
+                temp[index] = curr;
+            }
+            curr = curr_next;
+        }
+    }
+    free(h->arr);
+    h->arr = temp;
+    h->capacity = new_capacity;
+    
+    return 1;
+}
+
 int add_item(hashTable *h, const char *key){
     node *temp, *n;
     int index;
 
-    if(!h || !key || !*key || !h->arr) return -1;
+    if((double)(h->count+1) / h->capacity > MAX_BUCKET_SIZE){
+        //printf("%f\n", (double)(h->count+1) / h->capacity);s
+        rehash(h);
+    }
+
+    if(!h || !key || !*key || !h->arr) {
+        return -1;
+    }
 
     index = hash_func(key, h->capacity);
 

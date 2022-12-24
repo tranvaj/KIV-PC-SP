@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <float.h>
 #include <math.h>
+#include "hashtable.h"
 #include "bayes.h"
 #define LINE_DELIMS 32
 #define LINE_LEN 50000
@@ -32,7 +33,7 @@ int load_words(const char filename[], int *count, hashTable *h){
         if(!fgets(line, LINE_LEN, f) || !*line || !strcmp(line, "\n")) continue;
         word = strtok(line, &delim);
         while(word){
-            //printf("%s\n",word);
+            //printf("%s\n",word);s
             add_item(h,word);
             word = strtok(NULL, &delim);
             wc++;
@@ -92,7 +93,13 @@ trainset *create_dictionary(const char spam_vzor[], int spam_file_count, const c
     total_set = (set *) malloc(sizeof(set));
 
 
-    if(!t || !t->sets || !spam_set || !ham_set || !(ham = create_hashtable()) || !(spam = create_hashtable()) || !(total = create_hashtable())){
+    if(!t 
+        || !t->sets 
+        || !spam_set 
+        || !ham_set 
+        || !(ham = create_hashtable(HASHTABLE_CAPACITY_INIT)) 
+        || !(spam = create_hashtable(HASHTABLE_CAPACITY_INIT)) 
+        || !(total = create_hashtable(HASHTABLE_CAPACITY_INIT))){
         free(t);
         free(spam_set);
         free(ham_set);
@@ -131,7 +138,7 @@ trainset *create_dictionary(const char spam_vzor[], int spam_file_count, const c
 void free_dictionary(trainset **t){
     uint i;
 
-    for(i = 0; i < (*t)->set_cnt; i++){
+    for(i = 0; i < (*t)->set_cnt + 1; i++){ //chceme uvolnit i TOTAL hash tabulku
         free_hashtable(&((*t)->sets[i]->dict));
         free((*t)->sets[i]);
     }
@@ -141,7 +148,7 @@ void free_dictionary(trainset **t){
 }
 
 void NB_learn_text(trainset *t){
-    uint i, j, trainset_cnt = 0, n, n_k;
+    uint i, j, trainset_cnt = 0, n, n_k, uq_total;
     set *set;
     node *curr;
     hashTable *dict;
@@ -149,29 +156,31 @@ void NB_learn_text(trainset *t){
         trainset_cnt += t->sets[i]->dict_file_cnt;
     }
 
+    uq_total = t->sets[TOTAL_INDEX]->dict->uq_item_cnt;
+
     for(i = 0; i < t->set_cnt; i++){
         set = t->sets[i];
         set->probability = (double)set->dict_file_cnt / (double)trainset_cnt;
-        //printf("%d:%d\n", set->dict_file_cnt, trainset_cnt);
+
         n = set->dict->count;
         dict = set->dict;
-        for(j = 0; j < dict->capacity; j++){
-            curr = dict->arr[j];
+
+        for(j = 0; j < t->sets[TOTAL_INDEX]->dict->capacity; j++){
+            curr = t->sets[TOTAL_INDEX]->dict->arr[j];
             while(curr){
-                n_k = curr->freq;
-                printf("%s\n",curr->key);
+                n_k = get_freq(dict, curr->key);
                 if(i == SPAM_INDEX){
-                    curr->p_spam = (double)(n_k + 1)/(double)(n + dict->uq_item_cnt);
-                    printf("%d %d\n", n_k + 1, n + dict->uq_item_cnt);
+                    curr->p_spam = (double)(n_k + 1)/(double)(n + uq_total);
+                    //printf("%d %d\n", n_k + 1, n + uq_total);
                 } else {
-                    curr->p_ham = (double)(n_k + 1)/(double)(n + dict->uq_item_cnt);
-                    printf("%d %d\n", n_k + 1, n + dict->uq_item_cnt);
+                    curr->p_ham = (double)(n_k + 1)/(double)(n + uq_total);
+                    //printf("%d %d\n", n_k + 1, n + uq_total);
                 }
                 curr = curr->next;
             }
         }
-        //printf("%d\n", set->dict->uq_item_cnt);
     }
+    
 }
 
 int NB_classify_text(const char doc_filename[], trainset *t){
@@ -180,45 +189,45 @@ int NB_classify_text(const char doc_filename[], trainset *t){
     uint i, j, index_type = -1;
     int count;
     node *curr_doc_word, *curr_set_word;
-    hashTable *curr_set;
+    //hashTable *curr_set;
 
-    h = create_hashtable();
+    h = create_hashtable(HASHTABLE_CAPACITY_INIT);
     if(!h){
         return -1;
     }
-    //printf("%s\n",doc_filename);
-    //todo neni uplne spravne
+
     if(!load_words(doc_filename, &count, h)){
         free_hashtable(&h);
         return -1;
     }
 
     for(i = 0; i < t->set_cnt; i++){
-        curr_set = t->sets[i]->dict;
+        sum = 0; //resetovat sumu
         for(j = 0; j < h->capacity; j++){
             curr_doc_word = h->arr[j];
             while(curr_doc_word){
-                curr_set_word = get_node(curr_set, curr_doc_word->key);
+                curr_set_word = get_node(t->sets[TOTAL_INDEX]->dict, curr_doc_word->key);
                 if(curr_set_word){
                     if(i == SPAM_INDEX){
                         sum += log(curr_set_word->p_spam);
-                        printf("probspam: %s %f\n",curr_set_word->key,curr_set_word->p_spam);
+                        //printf("probspam: %s %f\n",curr_set_word->key,curr_set_word->p_spam);
                     } else {
                         sum += log(curr_set_word->p_ham);
-                        printf("probham: %s %f\n",curr_set_word->key,curr_set_word->p_ham);
+                        //printf("probham: %s %f\n",curr_set_word->key,curr_set_word->p_ham);
                     }
                 }
                 curr_doc_word = curr_doc_word->next;
             }
         }
 
-        printf("i: %d | cnb: %f ,prob_set: %f, sum_set: %f\n", i,t->sets[i]->probability * sum, t->sets[i]->probability, sum);
-        printf("cnt: %d\n",t->sets[i]->dict->count);
+        //printf("i: %d | cnb: %f ,prob_set: %f, sum_set: %f\n", i,t->sets[i]->probability * sum, t->sets[i]->probability, sum);
+        //printf("cnt: %d\n",t->sets[i]->dict->count);
         if(t->sets[i]->probability * sum > c_nb){
             c_nb = t->sets[i]->probability * sum;
             index_type = i;
         }
     }
+
     free_hashtable(&h);
     return index_type;
 }
@@ -248,14 +257,14 @@ void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const
         strcat(c, b);
         strcat(c, suffix);
         //printf("%s\n",c);
-
+ 
         res = NB_classify_text(c, t);
         if(res){
-            fprintf(f,"%s: HAM\n",c);
+            fprintf(f,"%s\tH\n",c);
         } else if(!res){
-            fprintf(f,"%s: SPAM\n",c);
+            fprintf(f,"%s\tS\n",c);
         } else {
-            fprintf(f,"%s: UNKNOWN\n",c);
+            fprintf(f,"%s\tUNKNOWN\n",c);
         }
         free(a);
         free(b);

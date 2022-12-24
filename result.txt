@@ -1,0 +1,1 @@
+data/custom/test1.txt: SPAM

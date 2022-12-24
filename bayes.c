@@ -2,33 +2,38 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <float.h>
+#include <math.h>
 #include "bayes.h"
-#include "hashtable.h"
-#define LINE_DELIMS ' '
+#define LINE_DELIMS 32
 #define LINE_LEN 50000
+#define TRAINING_SET_CNT 3
+#define SPAM_INDEX 0
+#define HAM_INDEX 1
+#define TOTAL_INDEX 2
 
-int load_file(const char filename[], int *count){
+int load_words(const char filename[], int *count, hashTable *h){
     FILE *f;
-    char line[LINE_LEN] = {0}, *word, delim = LINE_DELIMS;
+    char line[LINE_LEN] = {0}, *word, delim = (char)LINE_DELIMS;
     int lc, wc;
      
     *count = 0;
-    if (!filename || !*filename) return -1;
+    if (!filename || !*filename) return 0;
     
     f = fopen(filename, "r");
     if(!f) {
         printf("Error opening file '%s': %s\n", filename, strerror(errno));
-        return -1;
+        return 0;
     }
 
     lc = 0;
     wc = 0;
     while (!feof(f)){
         if(!fgets(line, LINE_LEN, f) || !*line || !strcmp(line, "\n")) continue;
-
         word = strtok(line, &delim);
         while(word){
-            printf("%s\n",word);
+            //printf("%s\n",word);
+            add_item(h,word);
             word = strtok(NULL, &delim);
             wc++;
         }
@@ -36,7 +41,226 @@ int load_file(const char filename[], int *count){
     }
 
     *count = wc;
-    printf("%d\n",*count);
     fclose(f);
     return 1;
 }
+
+int create_vzor_dictionary(const char vzor[], int N, hashTable *h){
+    int i, count, i_len = 0;
+    char *a, *b, *c, *suffix = ".txt";
+    int stop = 0;
+    
+    for(i = 1; i <= N; i++){
+        a = (char *) malloc(strlen(vzor) + 1);
+        strcpy(a, vzor);
+
+        i_len = snprintf(NULL, 0, "%d", i);
+        b = (char *) malloc(i_len+1);
+        snprintf(b, i_len + 1, "%d", i);
+
+        c = (char *) malloc(strlen(a) + i_len + strlen(suffix) + 1);
+        strcpy(c, a);
+        strcat(c, b);
+        strcat(c, suffix);
+        //printf("%s\n",c);
+
+        if(!load_words(c, &count, h)){
+            stop = 1;
+        }
+
+        free(a);
+        free(b);
+        free(c);
+
+        if(stop){
+            return 0;
+        }
+    }
+    return 1;
+}
+
+trainset *create_dictionary(const char spam_vzor[], int spam_file_count, const char ham_vzor[], int ham_file_count){
+    hashTable *ham, *spam, *total;
+    set *spam_set, *ham_set,  *total_set;
+    trainset *t;
+
+    t = (trainset *) calloc(1,sizeof(trainset));
+    t->sets = (set **) malloc(TRAINING_SET_CNT*sizeof(set*));
+
+    spam_set = (set *) malloc(sizeof(set));
+    ham_set = (set *) malloc(sizeof(set));
+    total_set = (set *) malloc(sizeof(set));
+
+
+    if(!t || !t->sets || !spam_set || !ham_set || !(ham = create_hashtable()) || !(spam = create_hashtable()) || !(total = create_hashtable())){
+        free(t);
+        free(spam_set);
+        free(ham_set);
+        free(total_set);
+
+        free(ham); //ham a spam jsou NULL
+        free(spam);
+        free(total);
+        free(t->sets);
+        return NULL;
+    };
+    t->set_cnt = TRAINING_SET_CNT - 1; //chceme cyklovat mezi spam mnozinou a ham
+    t->sets[SPAM_INDEX] = spam_set;
+    t->sets[HAM_INDEX] = ham_set;
+    t->sets[TOTAL_INDEX] = total_set;
+
+    ham_set->dict = ham;
+    ham_set->dict_file_cnt = ham_file_count;
+
+    spam_set->dict = spam;
+    spam_set->dict_file_cnt = spam_file_count;
+
+    total_set->dict = total;
+    total_set->dict_file_cnt = ham_file_count + spam_file_count;
+
+    if(!create_vzor_dictionary(spam_vzor, spam_file_count, spam_set->dict) 
+        || !create_vzor_dictionary(ham_vzor, ham_file_count, ham_set->dict)
+        || !create_vzor_dictionary(spam_vzor,spam_file_count, total_set->dict)
+        || !create_vzor_dictionary(ham_vzor, ham_file_count, total_set->dict)
+        ){
+        free_dictionary(&t);
+    }
+    return t;
+}
+
+void free_dictionary(trainset **t){
+    uint i;
+
+    for(i = 0; i < (*t)->set_cnt; i++){
+        free_hashtable(&((*t)->sets[i]->dict));
+        free((*t)->sets[i]);
+    }
+    free((*t)->sets);
+    free(*t);
+    *t = NULL;
+}
+
+void NB_learn_text(trainset *t){
+    uint i, j, trainset_cnt = 0, n, n_k;
+    set *set;
+    node *curr;
+    hashTable *dict;
+    for(i = 0; i < t->set_cnt; i++){
+        trainset_cnt += t->sets[i]->dict_file_cnt;
+    }
+
+    for(i = 0; i < t->set_cnt; i++){
+        set = t->sets[i];
+        set->probability = (double)set->dict_file_cnt / (double)trainset_cnt;
+        //printf("%d:%d\n", set->dict_file_cnt, trainset_cnt);
+        n = set->dict->count;
+        dict = set->dict;
+        for(j = 0; j < dict->capacity; j++){
+            curr = dict->arr[j];
+            while(curr){
+                n_k = curr->freq;
+                printf("%s\n",curr->key);
+                if(i == SPAM_INDEX){
+                    curr->p_spam = (double)(n_k + 1)/(double)(n + dict->uq_item_cnt);
+                    printf("%d %d\n", n_k + 1, n + dict->uq_item_cnt);
+                } else {
+                    curr->p_ham = (double)(n_k + 1)/(double)(n + dict->uq_item_cnt);
+                    printf("%d %d\n", n_k + 1, n + dict->uq_item_cnt);
+                }
+                curr = curr->next;
+            }
+        }
+        //printf("%d\n", set->dict->uq_item_cnt);
+    }
+}
+
+int NB_classify_text(const char doc_filename[], trainset *t){
+    hashTable *h;
+    double c_nb = -DBL_MAX, sum = 0;
+    uint i, j, index_type = -1;
+    int count;
+    node *curr_doc_word, *curr_set_word;
+    hashTable *curr_set;
+
+    h = create_hashtable();
+    if(!h){
+        return -1;
+    }
+    //printf("%s\n",doc_filename);
+    //todo neni uplne spravne
+    if(!load_words(doc_filename, &count, h)){
+        free_hashtable(&h);
+        return -1;
+    }
+
+    for(i = 0; i < t->set_cnt; i++){
+        curr_set = t->sets[i]->dict;
+        for(j = 0; j < h->capacity; j++){
+            curr_doc_word = h->arr[j];
+            while(curr_doc_word){
+                curr_set_word = get_node(curr_set, curr_doc_word->key);
+                if(curr_set_word){
+                    if(i == SPAM_INDEX){
+                        sum += log(curr_set_word->p_spam);
+                        printf("probspam: %s %f\n",curr_set_word->key,curr_set_word->p_spam);
+                    } else {
+                        sum += log(curr_set_word->p_ham);
+                        printf("probham: %s %f\n",curr_set_word->key,curr_set_word->p_ham);
+                    }
+                }
+                curr_doc_word = curr_doc_word->next;
+            }
+        }
+
+        printf("i: %d | cnb: %f ,prob_set: %f, sum_set: %f\n", i,t->sets[i]->probability * sum, t->sets[i]->probability, sum);
+        printf("cnt: %d\n",t->sets[i]->dict->count);
+        if(t->sets[i]->probability * sum > c_nb){
+            c_nb = t->sets[i]->probability * sum;
+            index_type = i;
+        }
+    }
+    free_hashtable(&h);
+    return index_type;
+}
+
+void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const char output[]){
+    int i, i_len = 0;
+    char *a, *b, *c, *suffix = ".txt";
+    int res = -1;
+
+    FILE *f;
+    f = fopen(output,"w");
+    if(!f) {
+        printf("Error modyifing file '%s': %s\n", output, strerror(errno));
+        return;
+    }
+    
+    for(i = 1; i <= vzor_count; i++){
+        a = (char *) malloc(strlen(vzor) + 1);
+        strcpy(a, vzor);
+
+        i_len = snprintf(NULL, 0, "%d", i);
+        b = (char *) malloc(i_len+1);
+        snprintf(b, i_len + 1, "%d", i);
+
+        c = (char *) malloc(strlen(a) + i_len + strlen(suffix) + 1);
+        strcpy(c, a);
+        strcat(c, b);
+        strcat(c, suffix);
+        //printf("%s\n",c);
+
+        res = NB_classify_text(c, t);
+        if(res){
+            fprintf(f,"%s: HAM\n",c);
+        } else if(!res){
+            fprintf(f,"%s: SPAM\n",c);
+        } else {
+            fprintf(f,"%s: UNKNOWN\n",c);
+        }
+        free(a);
+        free(b);
+        free(c);
+    }
+    fclose(f);
+}
+

@@ -2,12 +2,15 @@
 #include <stdio.h>
 #include <string.h>
 #include "hashtable.h"
+#define HASHTABLE_CAPACITY_INIT 257
+#define WORD_LEN 256
 
-hashTable *create_hashtable(uint capacity){
+hashTable *create_hashtable(){
+    uint capacity = HASHTABLE_CAPACITY_INIT;
     hashTable *ht;
     node **temp;
     if(!capacity) return NULL;
-    temp = (node **) malloc(capacity * sizeof(node *));
+    temp = (node **) calloc(capacity, sizeof(node *));
     ht = (hashTable *) malloc(sizeof(hashTable));
     if(!temp || !ht) return NULL;
     ht->capacity = capacity;
@@ -44,6 +47,7 @@ int add_item(hashTable *h, const char *key){
                 n->freq++;
                 free(temp->key);
                 free(temp);
+                h->uq_item_cnt--;
                 break;
             }
             if(!n->next){
@@ -54,22 +58,32 @@ int add_item(hashTable *h, const char *key){
         } while(n);
     }
     h->count++;
+    h->uq_item_cnt++;
     return 1;
 }
 
 uint get_freq(hashTable *h, char *key){
+    node *n = get_node(h,key);
+    if(!n) {
+        return 0;
+    }
+    return n->freq;
+}
+
+node *get_node(hashTable *h, char *key){
     int index;
     node *temp;
     index = hash_func(key, h->capacity);
     temp = h->arr[index];
     while(temp){
         if(!strcmp(temp->key,key)){
-            return temp->freq;
+            return temp;
         }
         temp = temp->next;
     }
-    return 0;
+    return NULL;
 }
+
 
 uint hash_func(const char *key, uint size){
     //TODO: mozna zmenit
@@ -96,7 +110,6 @@ void free_hashtable(hashTable **h){
         while(curr){
             prev = curr;
             curr = curr->next;
-            //printf("dasda %s\n",prev->key);
             free(prev->key);
             free(prev);
         }

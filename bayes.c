@@ -6,17 +6,11 @@
 #include <math.h>
 #include "hashtable.h"
 #include "bayes.h"
-#define LINE_DELIMS " "
-#define LINE_LEN 50000
-#define TRAINING_SET_CNT 3
-#define SPAM_INDEX 0
-#define HAM_INDEX 1
-#define TOTAL_INDEX 2
 
 int load_words(const char filename[], int *count, hashTable *h){
     FILE *f;
     char line[LINE_LEN] = {0}, *word, *delim = LINE_DELIMS;
-    int lc, wc;
+    int wc;
      
     *count = 0;
     if (!filename || !*filename) return 0;
@@ -27,7 +21,6 @@ int load_words(const char filename[], int *count, hashTable *h){
         return 0;
     }
 
-    lc = 0;
     wc = 0;
     while (!feof(f)){
         if(!fgets(line, LINE_LEN, f) || !*line || !strcmp(line, "\n")) continue;
@@ -38,7 +31,6 @@ int load_words(const char filename[], int *count, hashTable *h){
             word = strtok(NULL, delim);
             wc++;
         }
-        lc++;
     }
 
     *count = wc;
@@ -48,7 +40,7 @@ int load_words(const char filename[], int *count, hashTable *h){
 
 int create_vzor_dictionary(const char vzor[], int N, hashTable *h){
     int i, count, i_len = 0;
-    char *a, *b, *c, *suffix = ".txt";
+    char *a, *b, *c, *suffix = FILE_SUFFIX;
     int stop = 0;
     
     for(i = 1; i <= N; i++){
@@ -234,7 +226,7 @@ int NB_classify_text(const char doc_filename[], trainset *t){
 
 void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const char output[]){
     int i, i_len = 0;
-    char *a, *b, *c, *suffix = ".txt";
+    char *a, *b, *c, *suffix = FILE_SUFFIX;
     int res = -1;
 
     FILE *f;

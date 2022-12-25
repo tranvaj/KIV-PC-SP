@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "hashtable.h"
-#define INCREASE_CONSTANT 2
-#define MAX_BUCKET_SIZE 50
 
 hashTable *create_hashtable(uint capacity){
     hashTable *ht;

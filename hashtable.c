@@ -127,7 +127,15 @@ node *get_node(hashTable *h, char *key){
 
 
 uint hash_func(const char *key, uint size){
-    //TODO: mozna zmenit
+    //djb2 hash function http://www.cse.yorku.ca/~oz/hash.html
+    unsigned long hash = 5381;
+    int c;
+
+    while ((c = *key++))
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+    return hash%size;
+    /*
     const int p = 31;
     int hash = 0;
     long p_pow = 1;
@@ -138,6 +146,7 @@ uint hash_func(const char *key, uint size){
     }
     
     return hash;
+    */
 }
 
 void free_hashtable(hashTable **h){

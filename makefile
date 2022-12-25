@@ -1,8 +1,8 @@
 CC=gcc
-CFLAGS=-Wall -g
+CFLAGS=-Wall -pedantic -g
 ENDFLAGS=-lm
 OBJS=hashtable.o main.o bayes.o
-EXE=bayer.EXE
+EXE=bayer.exe
 
 all: $(EXE)
 

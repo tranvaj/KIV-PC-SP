@@ -259,9 +259,9 @@ void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const
         //printf("%s\n",c);
  
         res = NB_classify_text(c, t);
-        if(res){
+        if(res == HAM_INDEX){
             fprintf(f,"%s\tH\n",c);
-        } else if(!res){
+        } else if(res == SPAM_INDEX){
             fprintf(f,"%s\tS\n",c);
         } else {
             fprintf(f,"%s\tUNKNOWN\n",c);

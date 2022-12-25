@@ -115,6 +115,13 @@ int NB_classify_text(const char doc_filename[], trainset *t);
 */
 void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const char output[]);
 
-
+/**
+ * Vytvori pointer na retezec, ktery bude vypadat takto:
+ * <vzor><vzor_num><FILE_SUFFIX>
+ * kde vzor a vzor_num jsou argumenty a FILE_SUFFIX je konstanta definovana v bayes.h
+ * 
+ * Vraceny retezec se musi manualne UVOLNIT! Retezec zabira alokovanou pamet 
+*/
+char *create_vzor_name(const char vzor[], int vzor_num);
 
 #endif

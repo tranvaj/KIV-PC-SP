@@ -12,7 +12,7 @@ hashTable *create_hashtable(uint capacity){
     }
 
     temp = (node **) calloc(capacity, sizeof(node *));
-    ht = (hashTable *) malloc(sizeof(hashTable));
+    ht = (hashTable *) calloc(1,sizeof(hashTable));
 
     if(!temp || !ht) {
         //Nevime zda napriklad temp projde ale ht neprojde, v tomto pripade musime uvolnit oboji

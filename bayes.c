@@ -39,36 +39,18 @@ int load_words(const char filename[], int *count, hashTable *h){
 }
 
 int create_vzor_dictionary(const char vzor[], int N, hashTable *h){
-    int i, count, i_len = 0;
-    char *a, *b, *c, *suffix = FILE_SUFFIX; //a je vzor, b je cislo a c je celkovy nazev souboru
-    int stop = 0;
+    int i, count = 0;
+    char *vzor_name;
     
     for(i = 1; i <= N; i++){
         //zde prohiha zretezeni pripony a cisla ke vzoru
-        a = (char *) malloc(strlen(vzor) + 1);
-        strcpy(a, vzor);
+        vzor_name = create_vzor_name(vzor,i);
 
-        i_len = snprintf(NULL, 0, "%d", i);
-        b = (char *) malloc(i_len+1);
-        snprintf(b, i_len + 1, "%d", i);
-
-        c = (char *) malloc(strlen(a) + i_len + strlen(suffix) + 1);
-        strcpy(c, a);
-        strcat(c, b);
-        strcat(c, suffix);
-        //printf("%s\n",c);
-
-        if(!load_words(c, &count, h)){
-            stop = 1;
-        }
-
-        free(a);
-        free(b);
-        free(c);
-
-        if(stop){
+        if(!load_words(vzor_name, &count, h)){
+            free(vzor_name);
             return 0;
         }
+        free(vzor_name);
     }
     return 1;
 }
@@ -207,18 +189,13 @@ int NB_classify_text(const char doc_filename[], trainset *t){
                 if(curr_set_word){
                     if(i == SPAM_INDEX){
                         sum += log(curr_set_word->p_spam);
-                        //printf("probspam: %s %f\n",curr_set_word->key,curr_set_word->p_spam);
                     } else {
                         sum += log(curr_set_word->p_ham);
-                        //printf("probham: %s %f\n",curr_set_word->key,curr_set_word->p_ham);
                     }
                 }
                 curr_doc_word = curr_doc_word->next; //dalsi slovo z dokumentu, ktery se momentalne klasifikuje
             }
         }
-
-        //printf("i: %d | cnb: %f ,prob_set: %f, sum_set: %f\n", i,t->sets[i]->probability * sum, t->sets[i]->probability, sum);
-        //printf("cnt: %d\n",t->sets[i]->dict->count);
 
         if(t->sets[i]->probability * sum > c_nb){
             c_nb = t->sets[i]->probability * sum;
@@ -230,10 +207,31 @@ int NB_classify_text(const char doc_filename[], trainset *t){
     return index_type;
 }
 
+char *create_vzor_name(const char vzor[], int vzor_num){
+    int vzor_num_len = 0;
+    char *vzor_tmp, *vzor_num_str, *final_vzor, *suffix = FILE_SUFFIX;
+    
+    vzor_tmp = (char *) malloc(strlen(vzor) + 1);
+    strcpy(vzor_tmp, vzor);
+
+    vzor_num_len = snprintf(NULL, 0, "%d", vzor_num);
+    vzor_num_str = (char *) malloc(vzor_num_len+1);
+    snprintf(vzor_num_str, vzor_num_len + 1, "%d", vzor_num);
+
+    final_vzor = (char *) malloc(strlen(vzor_tmp) + vzor_num_len + strlen(suffix) + 1);
+    strcpy(final_vzor, vzor_tmp);
+    strcat(final_vzor, vzor_num_str);
+    strcat(final_vzor, suffix);
+    
+    //uz nevyuzivame tyto retezce, muzeme uvolnit
+    free(vzor_tmp);
+    free(vzor_num_str);
+    return final_vzor;
+}
+
 void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const char output[]){
-    int i, i_len = 0;
-    char *a, *b, *c, *suffix = FILE_SUFFIX; //a je vzor, b je cislo a c je celkovy nazev souboru
-    int res = -1;
+    int i = 0, res = -1;
+    char *vzor_name;
 
     FILE *f;
     f = fopen(output,"w");
@@ -243,31 +241,18 @@ void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const
     }
     
     for(i = 1; i <= vzor_count; i++){
-        a = (char *) malloc(strlen(vzor) + 1);
-        strcpy(a, vzor);
-
-        i_len = snprintf(NULL, 0, "%d", i);
-        b = (char *) malloc(i_len+1);
-        snprintf(b, i_len + 1, "%d", i);
-
-        c = (char *) malloc(strlen(a) + i_len + strlen(suffix) + 1);
-        strcpy(c, a);
-        strcat(c, b);
-        strcat(c, suffix);
-        //printf("%s\n",c);
+        vzor_name = create_vzor_name(vzor,i);
  
         //klasifikace jednoho vzoru
-        res = NB_classify_text(c, t);
+        res = NB_classify_text(vzor_name, t);
         if(res == HAM_INDEX){
-            fprintf(f,"%s\tH\n",c);
+            fprintf(f,"%s\tH\n",vzor_name);
         } else if(res == SPAM_INDEX){
-            fprintf(f,"%s\tS\n",c);
+            fprintf(f,"%s\tS\n",vzor_name);
         } else {
-            fprintf(f,"%s\tUNKNOWN\n",c);
+            fprintf(f,"%s\tUNKNOWN\n",vzor_name);
         }
-        free(a);
-        free(b);
-        free(c);
+        free(vzor_name);
     }
     fclose(f);
 }

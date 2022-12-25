@@ -12,6 +12,9 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);	
 	}
 
+    trainset *t;
+    char *out_file;
+
     //3 rozdilne promenne pro testovaci ucely 
     const char *def_fldr_spam_train = DATA_FOLDER;
     const char *def_fldr_ham_train = DATA_FOLDER;
@@ -34,7 +37,7 @@ int main(int argc, char *argv[])
     snprintf(ham_vzor, ham_vzor_size, "%s%s", def_fldr_ham_train, argv[3]);
     snprintf(test, test_size, "%s%s", def_fldr_test, argv[5]);
 
-    char *out_file = argv[7];
+    out_file = argv[7];
 
     if(spam_cnt <= 0 || ham_cnt <= 0 || test_cnt <= 0){
         printf("Error: Arguments <spam-cnt>, <ham-cnt>, <test-cnt> have to be >0!\nYour input was: %d, %d, %d\n", spam_cnt, ham_cnt, test_cnt);
@@ -44,7 +47,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);	
     }
 
-    trainset *t = create_trainingset(spam_vzor, spam_cnt, ham_vzor, ham_cnt);
+    t = create_trainingset(spam_vzor, spam_cnt, ham_vzor, ham_cnt);
     if(t){
         NB_learn_text(t);
         NB_classify_vzor_text(test,test_cnt,t,out_file);

@@ -6,7 +6,7 @@
 #include <math.h>
 #include "hashtable.h"
 #include "bayes.h"
-#define LINE_DELIMS 32
+#define LINE_DELIMS " "
 #define LINE_LEN 50000
 #define TRAINING_SET_CNT 3
 #define SPAM_INDEX 0
@@ -15,7 +15,7 @@
 
 int load_words(const char filename[], int *count, hashTable *h){
     FILE *f;
-    char line[LINE_LEN] = {0}, *word, delim = (char)LINE_DELIMS;
+    char line[LINE_LEN] = {0}, *word, *delim = LINE_DELIMS;
     int lc, wc;
      
     *count = 0;
@@ -31,11 +31,11 @@ int load_words(const char filename[], int *count, hashTable *h){
     wc = 0;
     while (!feof(f)){
         if(!fgets(line, LINE_LEN, f) || !*line || !strcmp(line, "\n")) continue;
-        word = strtok(line, &delim);
+        word = strtok(line, delim);
         while(word){
             //printf("%s\n",word);s
             add_item(h,word);
-            word = strtok(NULL, &delim);
+            word = strtok(NULL, delim);
             wc++;
         }
         lc++;
@@ -186,7 +186,7 @@ void NB_learn_text(trainset *t){
 int NB_classify_text(const char doc_filename[], trainset *t){
     hashTable *h;
     double c_nb = -DBL_MAX, sum = 0;
-    uint i, j, index_type = -1;
+    int i, j, index_type = -1;
     int count;
     node *curr_doc_word, *curr_set_word;
     //hashTable *curr_set;

@@ -37,7 +37,9 @@ int rehash(hashTable *h){
     new_capacity = h->capacity * INCREASE_CONSTANT;
     temp = (node **) calloc(new_capacity, sizeof(node *));
 
-    if(!h || !temp) return 0;
+    if(!h || !temp) {
+        return 0;
+    }
 
     //prochazime vsema uzlama tabulky
     for(i = 0; i < h->capacity; i++){
@@ -88,10 +90,14 @@ int add_item(hashTable *h, const char *key){
     index = hash_func(key, h->capacity);
 
     temp = (node *) malloc(sizeof(node));
-    if(!temp) return 0;
+    if(!temp) {
+        return 0;
+    }
 
     temp->key = (char *) malloc(sizeof(char) * (strlen(key)+1));
-    if(!temp->key) return 0;
+    if(!temp->key) {
+        return 0;
+    }
 
     strcpy(temp->key,key);
 

@@ -73,14 +73,14 @@ void NB_learn_text(trainset *t);
  * Uvolnuje pamet vyuzitou trenovaci mnozinou
  * Po uvolneni se ukazatel na trenovaci mnozinu nastavi na NULL
 */
-void free_dictionary(trainset **t);
+void free_trainingset(trainset **t);
 
 /**
  * Vytvori trenovaci mnozinu pomoci metody load_words_from_vzor_files()
  * Tato trenovaci mnozina bude obsahovat mnoziny SPAM, HAM a jejich sjednoceni
  * Pocet prvku v trenovaci mnozine je nastaveny na 2 z implementacnich duvodu
 */
-trainset *create_dictionary(const char spam_vzor[], int spam_file_count, const char ham_vzor[], int ham_file_count);
+trainset *create_trainingset(const char spam_vzor[], int spam_file_count, const char ham_vzor[], int ham_file_count);
 
 /**
  * Faze klasifikace podle zadani semestralni prace

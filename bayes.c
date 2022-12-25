@@ -55,7 +55,7 @@ int load_words_from_vzor_files(const char vzor[], int N, hashTable *h){
     return 1;
 }
 
-trainset *create_dictionary(const char spam_vzor[], int spam_file_count, const char ham_vzor[], int ham_file_count){
+trainset *create_trainingset(const char spam_vzor[], int spam_file_count, const char ham_vzor[], int ham_file_count){
     hashTable *ham, *spam, *total;
     set *spam_set, *ham_set,  *total_set;
     trainset *t;
@@ -107,12 +107,12 @@ trainset *create_dictionary(const char spam_vzor[], int spam_file_count, const c
         || !load_words_from_vzor_files(spam_vzor,spam_file_count, total_set->dict)
         || !load_words_from_vzor_files(ham_vzor, ham_file_count, total_set->dict)
         ){
-        free_dictionary(&t);
+        free_trainingset(&t);
     }
     return t;
 }
 
-void free_dictionary(trainset **t){
+void free_trainingset(trainset **t){
     uint i;
 
     for(i = 0; i < (*t)->set_cnt + 1; i++){ //pricteme 1 k set_cnt protoze chceme uvolnit i mnozinu sjednoceni HAM a SPAM
@@ -141,10 +141,10 @@ void NB_learn_text(trainset *t){
         set->probability = (double)set->dict_file_cnt / (double)trainset_cnt;
 
         n = set->dict->count;
-        dict = set->dict;
+        dict = set->dict; //slovnik mnoziny bud spam nebo ham
 
         for(j = 0; j < t->sets[TOTAL_INDEX]->dict->capacity; j++){
-            curr = t->sets[TOTAL_INDEX]->dict->arr[j];
+            curr = t->sets[TOTAL_INDEX]->dict->arr[j]; //slovnik mnoziny sjednoceni ham a spam
             while(curr){
                 n_k = get_freq(dict, curr->key);
                 if(i == SPAM_INDEX){

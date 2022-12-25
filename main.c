@@ -14,9 +14,9 @@ int main(int argc, char *argv[])
 	}
 
     //3 rozdilne promenne pro testovaci ucely 
-    const char *def_file_spam_train = DATA_FOLDER "train/";
-    const char *def_file_ham_train = DATA_FOLDER "train/";
-    const char *def_file_test = DATA_FOLDER "test/";
+    const char *def_file_spam_train = DATA_FOLDER;
+    const char *def_file_ham_train = DATA_FOLDER;
+    const char *def_file_test = DATA_FOLDER;
 
     //musime provest zretezeni, jelikoz soubory jsou v "data/" slozce
     int spam_vzor_size = strlen(argv[1]) + strlen(def_file_spam_train) + 1;
@@ -45,11 +45,11 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);	
     }
 
-    trainset *t = create_dictionary(spam_vzor, spam_cnt, ham_vzor, ham_cnt);
+    trainset *t = create_trainingset(spam_vzor, spam_cnt, ham_vzor, ham_cnt);
     if(t){
         NB_learn_text(t);
         NB_classify_vzor_text(test,test_cnt,t,out_file);
-        free_dictionary(&t);
+        free_trainingset(&t);
         free(spam_vzor);
         free(ham_vzor);
         free(test);

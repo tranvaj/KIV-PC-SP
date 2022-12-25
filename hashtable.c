@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "hashtable.h"
-#define WORD_LEN 256
 #define INCREASE_CONSTANT 2
 #define MAX_BUCKET_SIZE 50
 
@@ -71,7 +70,7 @@ int add_item(hashTable *h, const char *key){
     temp = (node *) malloc(sizeof(node));
     if(!temp) return -1;
 
-    temp->key = (char *) malloc(sizeof(char) * WORD_LEN);
+    temp->key = (char *) malloc(sizeof(char) * (strlen(key)+1));
     if(!temp->key) return -1;
 
     strcpy(temp->key,key);

@@ -1,6 +1,6 @@
 #ifndef __HASHTABLE__
 #define __HASHTABLE__
-#define HASHTABLE_CAPACITY_INIT 10
+#define HASHTABLE_CAPACITY_INIT 100
 typedef unsigned int uint;
 
 typedef struct node node;

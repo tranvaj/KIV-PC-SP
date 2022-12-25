@@ -4,6 +4,8 @@ ENDFLAGS=-lm
 OBJS=hashtable.o main.o bayes.o
 EXE=bayer.EXE
 
+all: $(EXE)
+
 $(EXE): $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(ENDFLAGS)
 

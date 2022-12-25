@@ -8,21 +8,14 @@ int main()
 
     const char *spam_vzor = "data/train/spam";
     const char *ham_vzor = "data/train/ham";
-    const char *test = "data/train/spam";
+    const char *test = "data/test/ham";
 
-    trainset *t = create_dictionary(spam_vzor, 5, ham_vzor, 5);
-    /*printf("spam_cnt: %d, spam_unq_cnt: %d, spam_file_cnt: %d, ham_cnt: %d, ham_unq_cnt: %d, ham_file_cnt: %d\n", 
-    t->sets[0]->dict->count, 
-    t->sets[0]->dict->uq_item_cnt, 
-    t->sets[0]->dict_file_cnt,
-    t->sets[1]->dict->count, 
-    t->sets[1]->dict->uq_item_cnt, 
-    t->sets[1]->dict_file_cnt);*/
-    NB_learn_text(t);
-    NB_classify_vzor_text(test,5,t,"result.txt");
-    //int classification = NB_classify_text(test,t);
-    //printf("%s : %d\n", test, classification);
-    //printf("freq league: %d\n", get_freq(t->sets[0]->dict,"league"));
-    free_dictionary(&t);
+    trainset *t = create_dictionary(spam_vzor, 300, ham_vzor, 300);
+    if(t){
+        NB_learn_text(t);
+        NB_classify_vzor_text(test,100,t,"result.txt");
+        free_dictionary(&t);
+    }
+    
     return 0;
 }

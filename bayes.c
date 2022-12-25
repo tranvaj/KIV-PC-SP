@@ -40,7 +40,7 @@ int load_words(const char filename[], int *count, hashTable *h){
 
 int create_vzor_dictionary(const char vzor[], int N, hashTable *h){
     int i, count, i_len = 0;
-    char *a, *b, *c, *suffix = FILE_SUFFIX;
+    char *a, *b, *c, *suffix = FILE_SUFFIX; //a je vzor, b je cislo a c je celkovy nazev souboru
     int stop = 0;
     
     for(i = 1; i <= N; i++){
@@ -102,6 +102,7 @@ trainset *create_dictionary(const char spam_vzor[], int spam_file_count, const c
         free(total);
         free(t->sets);
         //opet nevime kde alokovani proslo a kde ne, uvolnime vsechno pro jistotu, protoze free(NULL) by nemelo vadit podle stackoverflow
+        //muzem to individualne kontrolovat, ale takto zkratime kod
         return NULL;
     };
 
@@ -231,7 +232,7 @@ int NB_classify_text(const char doc_filename[], trainset *t){
 
 void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const char output[]){
     int i, i_len = 0;
-    char *a, *b, *c, *suffix = FILE_SUFFIX;
+    char *a, *b, *c, *suffix = FILE_SUFFIX; //a je vzor, b je cislo a c je celkovy nazev souboru
     int res = -1;
 
     FILE *f;

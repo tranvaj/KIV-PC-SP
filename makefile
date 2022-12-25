@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-Wall -pedantic -g
 ENDFLAGS=-lm
 OBJS=hashtable.o main.o bayes.o
-EXE=bayer.exe
+EXE=spamid.exe
 
 all: $(EXE)
 

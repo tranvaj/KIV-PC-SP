@@ -6,10 +6,22 @@
 hashTable *create_hashtable(uint capacity){
     hashTable *ht;
     node **temp;
-    if(!capacity) return NULL;
+
+    if(!capacity) {
+        return NULL;
+    }
+
     temp = (node **) calloc(capacity, sizeof(node *));
     ht = (hashTable *) malloc(sizeof(hashTable));
-    if(!temp || !ht) return NULL;
+
+    if(!temp || !ht) {
+        //Nevime zda napriklad temp projde ale ht neprojde, v tomto pripade musime uvolnit oboji
+        //Prohledaval jsem internet a free(NULL) pry nevadi, muzem takto zkratit kod
+        free(temp);
+        free(ht);
+        return NULL;
+    }
+
     ht->capacity = capacity;
     ht->arr = temp;
     ht->count = 0;
@@ -21,27 +33,37 @@ int rehash(hashTable *h){
     uint new_capacity;
     node *curr, **temp, *curr_next;
 
+    //zvetseni kapacity o konstantu-krat
     new_capacity = h->capacity * INCREASE_CONSTANT;
     temp = (node **) calloc(new_capacity, sizeof(node *));
 
     if(!h || !temp) return 0;
 
+    //prochazime vsema uzlama tabulky
     for(i = 0; i < h->capacity; i++){
         curr = h->arr[i];
         while(curr){
+            //nejdrive si ulozime nasledovnika tohoto uzlu
             curr_next = curr->next;
             index = hash_func(curr->key, new_capacity);
             
             if(temp[index]){
+                //vlozime ukazatele do noveho ukazetele na ukazetele
                 curr->next = temp[index];
                 temp[index] = curr;
             } else {
+                //pokud na tomto indexu neni prazdno
+                //vlozime ukazatele do prvni pozice a jeho nasledovnik bude predchozi ukazatel na prvni pozici
+                //poznamka: frekvence slov zustavaji nezmeneny, vkladani na prvni pozici v tomto pripade nevadi
                 temp[index] = curr;
                 temp[index]->next = NULL;
             }
+            //nasledovnik jiz byl ulozen predem, vyuzijeme ho
             curr = curr_next;
         }
     }
+    
+    //uvolnime stary ukazatel na ukazatele
     free(h->arr);
     h->arr = temp;
     h->capacity = new_capacity;
@@ -54,22 +76,22 @@ int add_item(hashTable *h, const char *key){
     int index;
 
     if((double)(h->count+1) / h->capacity > MAX_BUCKET_SIZE){
-        //printf("%f\n", (double)(h->count+1) / h->capacity);ss
+        //Chceme udrzet konstantni amortizovanou slozitost pro vkladani a hledani prvku 
         rehash(h);
         //printf("rehashed\n");
     }
 
     if(!h || !key || !*key || !h->arr) {
-        return -1;
+        return 0;
     }
 
     index = hash_func(key, h->capacity);
 
     temp = (node *) malloc(sizeof(node));
-    if(!temp) return -1;
+    if(!temp) return 0;
 
     temp->key = (char *) malloc(sizeof(char) * (strlen(key)+1));
-    if(!temp->key) return -1;
+    if(!temp->key) return 0;
 
     strcpy(temp->key,key);
 
@@ -82,6 +104,7 @@ int add_item(hashTable *h, const char *key){
         n = h->arr[index];
         do{
             if(!strcmp(n->key,key)){
+                //pokud jsou si retezce shodne, zvysime frekvenci slova a ukoncime cyklus vyhledavani
                 n->freq++;
                 free(temp->key);
                 free(temp);
@@ -114,6 +137,7 @@ node *get_node(hashTable *h, char *key){
     index = hash_func(key, h->capacity);
     temp = h->arr[index];
     while(temp){
+        //hledame prvek se stejnym nazvem klice
         if(!strcmp(temp->key,key)){
             return temp;
         }
@@ -133,6 +157,7 @@ uint hash_func(const char *key, uint size){
 
     return hash%size;
     /*
+    //starsi polynomial roll hash fce
     const int p = 31;
     int hash = 0;
     long p_pow = 1;

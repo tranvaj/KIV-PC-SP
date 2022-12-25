@@ -3,10 +3,10 @@
 #include <string.h>
 #include "hashtable.h"
 #include "bayes.h"
+#define DATA_FOLDER "data/"
 
 int main(int argc, char *argv[])
 {
-    //index 0 spam, index 1 ham 
 
     if(argc != 8){
 		printf("Error: Missing arguments!\nUsage: %s <spam> <spam-cnt> <ham> <ham-cnt> <test> <test-cnt> <out-file>\n", argv[0]);
@@ -14,10 +14,11 @@ int main(int argc, char *argv[])
 	}
 
     //3 rozdilne promenne pro testovaci ucely 
-    const char *def_file_spam_train = "data/";
-    const char *def_file_ham_train = "data/";
-    const char *def_file_test = "data/";
+    const char *def_file_spam_train = DATA_FOLDER;
+    const char *def_file_ham_train = DATA_FOLDER;
+    const char *def_file_test = DATA_FOLDER;
 
+    //musime provest zretezeni, jelikoz soubory jsou v "data/" slozce
     int spam_vzor_size = strlen(argv[1]) + strlen(def_file_spam_train) + 1;
     int ham_vzor_size = strlen(argv[3]) + strlen(def_file_ham_train) + 1;
     int test_size = strlen(argv[5]) + strlen(def_file_test) + 1;

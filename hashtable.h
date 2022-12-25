@@ -56,6 +56,8 @@ void free_hashtable(hashTable **h);
  * Vlozi novy uzel do hash tabulky s danym klicem/slovem
  * Pokud uzel s danym klicem/slovem uz existuje, zmeni se frekvence slova tohoto uzlu o +1
  * Provede se rehash pokud velikost kybliku bude presahnuta
+ * Vraci 0 pokud byla metoda neuspesna
+ * Vraci 1 pokud byla metoda uspesna
 */
 int add_item(hashTable *h, const char *key);
 

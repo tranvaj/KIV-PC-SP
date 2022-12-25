@@ -44,6 +44,7 @@ int create_vzor_dictionary(const char vzor[], int N, hashTable *h){
     int stop = 0;
     
     for(i = 1; i <= N; i++){
+        //zde prohiha zretezeni pripony a cisla ke vzoru
         a = (char *) malloc(strlen(vzor) + 1);
         strcpy(a, vzor);
 
@@ -84,7 +85,6 @@ trainset *create_dictionary(const char spam_vzor[], int spam_file_count, const c
     ham_set = (set *) malloc(sizeof(set));
     total_set = (set *) malloc(sizeof(set));
 
-
     if(!t 
         || !t->sets 
         || !spam_set 
@@ -97,13 +97,15 @@ trainset *create_dictionary(const char spam_vzor[], int spam_file_count, const c
         free(ham_set);
         free(total_set);
 
-        free(ham); //ham a spam jsou NULL
+        free(ham); 
         free(spam);
         free(total);
         free(t->sets);
+        //opet nevime kde alokovani proslo a kde ne, uvolnime vsechno pro jistotu, protoze free(NULL) by nemelo vadit podle stackoverflow
         return NULL;
     };
-    t->set_cnt = TRAINING_SET_CNT - 1; //chceme cyklovat mezi spam mnozinou a ham
+
+    t->set_cnt = TRAINING_SET_CNT - 1; //odecitame 1 protoze chceme vyuzivat jenom mnozinu HAM a SPAM, na indexu 2 je jejich sjednoceni, to vyuzijeme pro jine ucely
     t->sets[SPAM_INDEX] = spam_set;
     t->sets[HAM_INDEX] = ham_set;
     t->sets[TOTAL_INDEX] = total_set;
@@ -130,7 +132,7 @@ trainset *create_dictionary(const char spam_vzor[], int spam_file_count, const c
 void free_dictionary(trainset **t){
     uint i;
 
-    for(i = 0; i < (*t)->set_cnt + 1; i++){ //chceme uvolnit i TOTAL hash tabulku
+    for(i = 0; i < (*t)->set_cnt + 1; i++){ //pricteme 1 k set_cnt protoze chceme uvolnit i mnozinu sjednoceni HAM a SPAM
         free_hashtable(&((*t)->sets[i]->dict));
         free((*t)->sets[i]);
     }
@@ -150,6 +152,7 @@ void NB_learn_text(trainset *t){
 
     uq_total = t->sets[TOTAL_INDEX]->dict->uq_item_cnt;
 
+    //podle pseudokodu NBK, faze uceni
     for(i = 0; i < t->set_cnt; i++){
         set = t->sets[i];
         set->probability = (double)set->dict_file_cnt / (double)trainset_cnt;
@@ -190,15 +193,16 @@ int NB_classify_text(const char doc_filename[], trainset *t){
 
     if(!load_words(doc_filename, &count, h)){
         free_hashtable(&h);
-        return -1;
+        return -1; //klasifikujeme jako -1 = UNKNOWN
     }
 
+    //ARGMAX podle zadani SP
     for(i = 0; i < t->set_cnt; i++){
         sum = 0; //resetovat sumu
         for(j = 0; j < h->capacity; j++){
-            curr_doc_word = h->arr[j];
+            curr_doc_word = h->arr[j]; //slovo z dokumentu, ktery se momentalne klasifikuje
             while(curr_doc_word){
-                curr_set_word = get_node(t->sets[TOTAL_INDEX]->dict, curr_doc_word->key);
+                curr_set_word = get_node(t->sets[TOTAL_INDEX]->dict, curr_doc_word->key); //odpovidajici slovo z mnoziny bud SPAM nebo HAM
                 if(curr_set_word){
                     if(i == SPAM_INDEX){
                         sum += log(curr_set_word->p_spam);
@@ -208,12 +212,13 @@ int NB_classify_text(const char doc_filename[], trainset *t){
                         //printf("probham: %s %f\n",curr_set_word->key,curr_set_word->p_ham);
                     }
                 }
-                curr_doc_word = curr_doc_word->next;
+                curr_doc_word = curr_doc_word->next; //dalsi slovo z dokumentu, ktery se momentalne klasifikuje
             }
         }
 
         //printf("i: %d | cnb: %f ,prob_set: %f, sum_set: %f\n", i,t->sets[i]->probability * sum, t->sets[i]->probability, sum);
         //printf("cnt: %d\n",t->sets[i]->dict->count);
+
         if(t->sets[i]->probability * sum > c_nb){
             c_nb = t->sets[i]->probability * sum;
             index_type = i;
@@ -250,6 +255,7 @@ void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const
         strcat(c, suffix);
         //printf("%s\n",c);
  
+        //klasifikace jednoho vzoru
         res = NB_classify_text(c, t);
         if(res == HAM_INDEX){
             fprintf(f,"%s\tH\n",c);

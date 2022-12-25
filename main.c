@@ -14,9 +14,9 @@ int main(int argc, char *argv[])
 	}
 
     //3 rozdilne promenne pro testovaci ucely 
-    const char *def_file_spam_train = DATA_FOLDER;
-    const char *def_file_ham_train = DATA_FOLDER;
-    const char *def_file_test = DATA_FOLDER;
+    const char *def_file_spam_train = DATA_FOLDER "train/";
+    const char *def_file_ham_train = DATA_FOLDER "train/";
+    const char *def_file_test = DATA_FOLDER "test/";
 
     //musime provest zretezeni, jelikoz soubory jsou v "data/" slozce
     int spam_vzor_size = strlen(argv[1]) + strlen(def_file_spam_train) + 1;

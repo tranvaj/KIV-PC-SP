@@ -38,7 +38,7 @@ int load_words(const char filename[], int *count, hashTable *h){
     return 1;
 }
 
-int create_vzor_dictionary(const char vzor[], int N, hashTable *h){
+int load_words_from_vzor_files(const char vzor[], int N, hashTable *h){
     int i, count = 0;
     char *vzor_name;
     
@@ -102,10 +102,10 @@ trainset *create_dictionary(const char spam_vzor[], int spam_file_count, const c
     total_set->dict = total;
     total_set->dict_file_cnt = ham_file_count + spam_file_count;
 
-    if(!create_vzor_dictionary(spam_vzor, spam_file_count, spam_set->dict) 
-        || !create_vzor_dictionary(ham_vzor, ham_file_count, ham_set->dict)
-        || !create_vzor_dictionary(spam_vzor,spam_file_count, total_set->dict)
-        || !create_vzor_dictionary(ham_vzor, ham_file_count, total_set->dict)
+    if(!load_words_from_vzor_files(spam_vzor, spam_file_count, spam_set->dict) 
+        || !load_words_from_vzor_files(ham_vzor, ham_file_count, ham_set->dict)
+        || !load_words_from_vzor_files(spam_vzor,spam_file_count, total_set->dict)
+        || !load_words_from_vzor_files(ham_vzor, ham_file_count, total_set->dict)
         ){
         free_dictionary(&t);
     }

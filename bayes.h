@@ -62,7 +62,7 @@ int load_words(const char filename[], int *count, hashTable *h);
  * kde vzor a N jsou dane parametrama a pripona je dana konstantou FILE_SUFFIX, ktera je definovana v bayes.h
  * Vychozi hodnota FILE_SUFFIX je ".txt" 
 */
-int create_vzor_dictionary(const char vzor[], int N, hashTable *h);
+int load_words_from_vzor_files(const char vzor[], int N, hashTable *h);
 
 /**
  * Faze uceni, zde se vypocitaji pravdepodobnosti podle algoritmu ze zadani semestralni prace
@@ -76,7 +76,7 @@ void NB_learn_text(trainset *t);
 void free_dictionary(trainset **t);
 
 /**
- * Vytvori trenovaci mnozinu pomoci metody create_vzor_dictionary()
+ * Vytvori trenovaci mnozinu pomoci metody load_words_from_vzor_files()
  * Tato trenovaci mnozina bude obsahovat mnoziny SPAM, HAM a jejich sjednoceni
  * Pocet prvku v trenovaci mnozine je nastaveny na 2 z implementacnich duvodu
 */

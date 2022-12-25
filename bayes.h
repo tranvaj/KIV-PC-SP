@@ -16,6 +16,8 @@
 #define TOTAL_INDEX 2
 //Pripona nacitanych dokumentu
 #define FILE_SUFFIX ".txt"
+//Predpona vsech dokumentu (misto, kde se nachazi trenovaci dokumenty a testovaci dokumenty)
+#define DATA_FOLDER "data/"
 
 /**
  * Tato struktura reprezentuje jednu mnozinu 

@@ -231,7 +231,7 @@ char *create_vzor_name(const char vzor[], int vzor_num){
 
 void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const char output[]){
     int i = 0, res = -1;
-    char *vzor_name;
+    char *vzor_name, *vzor_without_prefix;
 
     FILE *f;
     f = fopen(output,"w");
@@ -242,15 +242,16 @@ void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const
     
     for(i = 1; i <= vzor_count; i++){
         vzor_name = create_vzor_name(vzor,i);
+        vzor_without_prefix = vzor_name + strlen(DATA_FOLDER);
  
         //klasifikace jednoho vzoru
         res = NB_classify_text(vzor_name, t);
         if(res == HAM_INDEX){
-            fprintf(f,"%s\tH\n",vzor_name);
+            fprintf(f,"%s\tH\n",vzor_without_prefix);
         } else if(res == SPAM_INDEX){
-            fprintf(f,"%s\tS\n",vzor_name);
+            fprintf(f,"%s\tS\n",vzor_without_prefix);
         } else {
-            fprintf(f,"%s\tUNKNOWN\n",vzor_name);
+            fprintf(f,"%s\tUNKNOWN\n",vzor_without_prefix);
         }
         free(vzor_name);
     }

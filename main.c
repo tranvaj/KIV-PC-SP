@@ -3,7 +3,6 @@
 #include <string.h>
 #include "hashtable.h"
 #include "bayes.h"
-#define DATA_FOLDER "data/"
 
 int main(int argc, char *argv[])
 {
@@ -14,14 +13,14 @@ int main(int argc, char *argv[])
 	}
 
     //3 rozdilne promenne pro testovaci ucely 
-    const char *def_file_spam_train = DATA_FOLDER;
-    const char *def_file_ham_train = DATA_FOLDER;
-    const char *def_file_test = DATA_FOLDER;
+    const char *def_fldr_spam_train = DATA_FOLDER;
+    const char *def_fldr_ham_train = DATA_FOLDER;
+    const char *def_fldr_test = DATA_FOLDER;
 
     //musime provest zretezeni, jelikoz soubory jsou v "data/" slozce
-    int spam_vzor_size = strlen(argv[1]) + strlen(def_file_spam_train) + 1;
-    int ham_vzor_size = strlen(argv[3]) + strlen(def_file_ham_train) + 1;
-    int test_size = strlen(argv[5]) + strlen(def_file_test) + 1;
+    int spam_vzor_size = strlen(argv[1]) + strlen(def_fldr_spam_train) + 1;
+    int ham_vzor_size = strlen(argv[3]) + strlen(def_fldr_ham_train) + 1;
+    int test_size = strlen(argv[5]) + strlen(def_fldr_test) + 1;
 
     char *spam_vzor = (char *) calloc(spam_vzor_size, sizeof(char));
     char *ham_vzor = (char *) calloc(ham_vzor_size, sizeof(char));
@@ -31,9 +30,9 @@ int main(int argc, char *argv[])
     int ham_cnt = atoi(argv[4]);
     int test_cnt = atoi(argv[6]);
 
-    snprintf(spam_vzor, spam_vzor_size, "%s%s", def_file_spam_train, argv[1]);
-    snprintf(ham_vzor, ham_vzor_size, "%s%s", def_file_ham_train, argv[3]);
-    snprintf(test, test_size, "%s%s", def_file_test, argv[5]);
+    snprintf(spam_vzor, spam_vzor_size, "%s%s", def_fldr_spam_train, argv[1]);
+    snprintf(ham_vzor, ham_vzor_size, "%s%s", def_fldr_ham_train, argv[3]);
+    snprintf(test, test_size, "%s%s", def_fldr_test, argv[5]);
 
     char *out_file = argv[7];
 

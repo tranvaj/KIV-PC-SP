@@ -24,6 +24,7 @@ int load_words(const char filename[], int *count, hashtable *h){
     line_len = get_first_line_len(filename);
     if(line_len <= 1){
         printf("Error empty file: '%s'\n", filename);
+        fclose(f);
         return 0;
     }
 

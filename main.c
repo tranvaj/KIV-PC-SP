@@ -3,6 +3,7 @@
 #include <string.h>
 #include "hashtable.h"
 #include "bayes.h"
+#include "filereader.h"
 
 int main(int argc, char *argv[])
 {

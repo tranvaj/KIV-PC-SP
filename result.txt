@@ -1,2 +1,2 @@
-test1.txt	H
-test2.txt	S
+spam1.txt	S
+spam2.txt	S

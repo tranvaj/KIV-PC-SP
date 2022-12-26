@@ -4,8 +4,6 @@
 
 //Znak ktery oddeluje slova v dokumentech
 #define LINE_DELIMS " "
-//Maximalni delka radky v dokumentu, nelze vyuzit metodu fgets bez teto delky
-#define LINE_LEN 50000
 //Pocet mnozin v trenovaci mnozine vcetne mnoziny sjednoceni HAM a SPAM
 #define TRAINING_SET_CNT 3
 //Index, ktery je souvisly s mnozinou SPAM
@@ -125,5 +123,10 @@ void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const
  * Vraceny retezec se musi manualne UVOLNIT! Retezec zabira alokovanou pamet 
 */
 char *create_vzor_name(const char vzor[], int vzor_num);
+
+/**
+ * Vraci delku 1. radky textoveho souboru
+*/
+int get_first_line_len(const char filename[]);
 
 #endif

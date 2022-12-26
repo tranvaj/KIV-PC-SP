@@ -7,13 +7,41 @@
 #include "hashtable.h"
 #include "bayes.h"
 
+int get_first_line_len(const char filename[]){
+    FILE *f;
+    int character, count = 0;
+
+    if (!filename || !*filename) {
+        return 0;
+    }
+    
+    f = fopen(filename, "r");
+    if(!f) {
+        printf("Error opening file '%s': %s\n", filename, strerror(errno));
+        return 0;
+    }
+
+    while(1) {
+        character = fgetc(f);
+        if(character == EOF || character == '\n'){
+            count++;
+            break;
+        }
+        count++;
+    }
+    fclose(f);
+    return count;
+}
+
 int load_words(const char filename[], int *count, hashtable *h){
     FILE *f;
-    char line[LINE_LEN] = {0}, *word, *delim = LINE_DELIMS;
-    int wc;
+    char *line, *word, *delim = LINE_DELIMS;
+    int wc, line_len;
      
     *count = 0;
-    if (!filename || !*filename) return 0;
+    if (!filename || !*filename) {
+        return 0;
+    }
     
     f = fopen(filename, "r");
     if(!f) {
@@ -22,8 +50,13 @@ int load_words(const char filename[], int *count, hashtable *h){
     }
 
     wc = 0;
+    line_len = get_first_line_len(filename);
+    line = (char *) calloc(line_len, sizeof(char));
     while (!feof(f)){
-        if(!fgets(line, LINE_LEN, f) || !*line || !strcmp(line, "\n")) continue;
+        if(!fgets(line, line_len, f) || !*line || !strcmp(line, "\n")) {
+            continue;
+        }
+
         word = strtok(line, delim);
         while(word){
             //printf("%s\n",word);s
@@ -35,6 +68,7 @@ int load_words(const char filename[], int *count, hashtable *h){
 
     *count = wc;
     fclose(f);
+    free(line);
     return 1;
 }
 

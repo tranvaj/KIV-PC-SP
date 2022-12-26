@@ -22,19 +22,22 @@ int load_words(const char filename[], int *count, hashtable *h){
 
     wc = 0;
     line_len = get_first_line_len(filename);
-    line = (char *) calloc(line_len, sizeof(char));
-    while (!feof(f)){
-        if(!fgets(line, line_len, f) || !*line || !strcmp(line, "\n")) {
-            continue;
-        }
+    if(line_len <= 1){
+        printf("Error empty file: '%s'\n", filename);
+        return 0;
+    }
 
-        word = strtok(line, delim);
-        while(word){
-            //printf("%s\n",word);s
-            add_item(h,word);
-            word = strtok(NULL, delim);
-            wc++;
-        }
+    line = (char *) calloc(line_len, sizeof(char));
+    if (fgets(line, line_len, f)){
+        if(*line && strcmp(line, "\n")) {
+            word = strtok(line, delim);
+            while(word){
+                //printf("%s\n",word);
+                add_item(h,word);
+                word = strtok(NULL, delim);
+                wc++;
+            }
+        } else {}
     }
 
     *count = wc;

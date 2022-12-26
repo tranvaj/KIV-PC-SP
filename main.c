@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     const char *def_fldr_ham_train = DATA_FOLDER;
     const char *def_fldr_test = DATA_FOLDER;
 
-    //musime provest zretezeni, jelikoz soubory jsou v "data/" slozce
+    //musime provest zretezeni, jelikoz soubory jsou v "data/" slozce 
     int spam_vzor_size = strlen(argv[1]) + strlen(def_fldr_spam_train) + 1;
     int ham_vzor_size = strlen(argv[3]) + strlen(def_fldr_ham_train) + 1;
     int test_size = strlen(argv[5]) + strlen(def_fldr_test) + 1;

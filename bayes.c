@@ -183,8 +183,6 @@ void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const
             fprintf(f,"%s\tH\n",vzor_without_prefix);
         } else if(res == SPAM_INDEX){
             fprintf(f,"%s\tS\n",vzor_without_prefix);
-        } else {
-            fprintf(f,"%s\tUNKNOWN\n",vzor_without_prefix);
         }
         free(vzor_name);
     }

@@ -7,7 +7,7 @@
 #include "hashtable.h"
 #include "bayes.h"
 
-int load_words(const char filename[], int *count, hashTable *h){
+int load_words(const char filename[], int *count, hashtable *h){
     FILE *f;
     char line[LINE_LEN] = {0}, *word, *delim = LINE_DELIMS;
     int wc;
@@ -38,7 +38,7 @@ int load_words(const char filename[], int *count, hashTable *h){
     return 1;
 }
 
-int load_words_from_vzor_files(const char vzor[], int N, hashTable *h){
+int load_words_from_vzor_files(const char vzor[], int N, hashtable *h){
     int i, count = 0;
     char *vzor_name;
     
@@ -56,7 +56,7 @@ int load_words_from_vzor_files(const char vzor[], int N, hashTable *h){
 }
 
 trainset *create_trainingset(const char spam_vzor[], int spam_file_count, const char ham_vzor[], int ham_file_count){
-    hashTable *ham, *spam, *total;
+    hashtable *ham, *spam, *total;
     set *spam_set, *ham_set,  *total_set;
     trainset *t;
 
@@ -128,7 +128,7 @@ void NB_learn_text(trainset *t){
     uint i, j, trainset_cnt = 0, n, n_k, uq_total;
     set *set;
     node *curr;
-    hashTable *dict;
+    hashtable *dict;
     for(i = 0; i < t->set_cnt; i++){
         trainset_cnt += t->sets[i]->dict_file_cnt;
     }
@@ -162,7 +162,7 @@ void NB_learn_text(trainset *t){
 }
 
 int NB_classify_text(const char doc_filename[], trainset *t){
-    hashTable *h;
+    hashtable *h;
     double c_nb = -DBL_MAX, sum = 0;
     int i, j, index_type = -1;
     int count;

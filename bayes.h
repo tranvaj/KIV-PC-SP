@@ -26,7 +26,7 @@
 */
 typedef struct set{
     //Slovnik teto mnoziny
-    hashTable *dict;
+    hashtable *dict;
     //Pocet nactenych dokumentu
     uint dict_file_cnt;
     //Apriorni pravdepobnost mnoziny
@@ -56,7 +56,7 @@ typedef struct trainset{
  * Do count se ulozi pocet nactenych slov
  * Metoda vraci 1 pokud se uspesne provedla nebo 0 pokud nekde selhala
 */
-int load_words(const char filename[], int *count, hashTable *h);
+int load_words(const char filename[], int *count, hashtable *h);
 
 /**
  * Nacte do hash tabulky vsechny slova ze souboru s nazvem:
@@ -64,7 +64,7 @@ int load_words(const char filename[], int *count, hashTable *h);
  * kde vzor a N jsou dane parametrama a pripona je dana konstantou FILE_SUFFIX, ktera je definovana v bayes.h
  * Vychozi hodnota FILE_SUFFIX je ".txt" 
 */
-int load_words_from_vzor_files(const char vzor[], int N, hashTable *h);
+int load_words_from_vzor_files(const char vzor[], int N, hashtable *h);
 
 /**
  * Faze uceni, zde se vypocitaji pravdepodobnosti podle algoritmu ze zadani semestralni prace

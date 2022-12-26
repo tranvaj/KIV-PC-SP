@@ -30,7 +30,7 @@ struct node{
 /**
  * Tabulka s rozptylenymi polozkami, ktera vyuziva zretezeni podle spojoveho seznamu
 */
-typedef struct hashTable{
+typedef struct hashtable{
     //Ukazovatel na ukazovatele uzlu, zde jsou ulozeny vsechny prvky tabulky
     node **arr;  
     //Kapacita tabulky
@@ -39,18 +39,18 @@ typedef struct hashTable{
     uint count; 
     //Unikatni pocet prvku v tabulce
     uint uq_item_cnt; 
-} hashTable;
+} hashtable;
 
 /**
  * Vytvori tabulku s roztylenimi polozkami s danou kapacitou
 */
-hashTable *create_hashtable(uint capacity);
+hashtable *create_hashtable(uint capacity);
 
 /**
  * Uvolni pamet vyuzitou hashovaci tabulkou
  * Po uvolneni se ukazatel na hash tabulku nastavi na NULL 
 */
-void free_hashtable(hashTable **h);
+void free_hashtable(hashtable **h);
 
 /**
  * Vlozi novy uzel do hash tabulky s danym klicem/slovem
@@ -59,7 +59,7 @@ void free_hashtable(hashTable **h);
  * Vraci 0 pokud byla metoda neuspesna
  * Vraci 1 pokud byla metoda uspesna
 */
-int add_item(hashTable *h, const char *key);
+int add_item(hashtable *h, const char *key);
 
 /**
  * Hashovaci funkce djb2 od Dan Bernstein
@@ -70,12 +70,12 @@ uint hash_func(const char *key, uint size);
 /**
  * Vraci frekvenci slova v hash tabulce
 */
-uint get_freq(hashTable *h, char *key);
+uint get_freq(hashtable *h, char *key);
 
 /**
  * Vraci uzel, ktery ma stejny nazev klice jako retezec argumentu
 */
-node *get_node(hashTable *h, char *key);
+node *get_node(hashtable *h, char *key);
 
 /**
  * Zvysi kapacitu "ukazatele na ukazatele" o k-krat, kde k je dana konstantou INCREASE_CONSTANT
@@ -83,6 +83,6 @@ node *get_node(hashTable *h, char *key);
  * Puvodni prvky se presunou do noveho "ukazatele na ukazatele" (nevytvari se znova)
  * Puvodni "ukazatel na ukazatele" se uvolni
 */
-int rehash(hashTable *h);
+int rehash(hashtable *h);
 
 #endif

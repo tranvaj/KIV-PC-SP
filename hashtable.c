@@ -3,8 +3,8 @@
 #include <string.h>
 #include "hashtable.h"
 
-hashTable *create_hashtable(uint capacity){
-    hashTable *ht;
+hashtable *create_hashtable(uint capacity){
+    hashtable *ht;
     node **temp;
 
     if(!capacity) {
@@ -12,7 +12,7 @@ hashTable *create_hashtable(uint capacity){
     }
 
     temp = (node **) calloc(capacity, sizeof(node *));
-    ht = (hashTable *) calloc(1,sizeof(hashTable));
+    ht = (hashtable *) calloc(1,sizeof(hashtable));
 
     if(!temp || !ht) {
         //Nevime zda napriklad temp projde ale ht neprojde, v tomto pripade musime uvolnit oboji
@@ -28,7 +28,7 @@ hashTable *create_hashtable(uint capacity){
     return ht;
 }
 
-int rehash(hashTable *h){
+int rehash(hashtable *h){
     int i, index;
     uint new_capacity;
     node *curr, **temp, *curr_next;
@@ -73,7 +73,7 @@ int rehash(hashTable *h){
     return 1;
 }
 
-int add_item(hashTable *h, const char *key){
+int add_item(hashtable *h, const char *key){
     node *temp, *n;
     int index;
 
@@ -129,7 +129,7 @@ int add_item(hashTable *h, const char *key){
     return 1;
 }
 
-uint get_freq(hashTable *h, char *key){
+uint get_freq(hashtable *h, char *key){
     node *n = get_node(h,key);
     if(!n) {
         return 0;
@@ -137,7 +137,7 @@ uint get_freq(hashTable *h, char *key){
     return n->freq;
 }
 
-node *get_node(hashTable *h, char *key){
+node *get_node(hashtable *h, char *key){
     int index;
     node *temp;
     index = hash_func(key, h->capacity);
@@ -177,7 +177,7 @@ uint hash_func(const char *key, uint size){
     */
 }
 
-void free_hashtable(hashTable **h){
+void free_hashtable(hashtable **h){
     int i;
     node *curr, *prev;
 

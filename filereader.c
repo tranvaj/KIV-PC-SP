@@ -57,7 +57,8 @@ int load_words_from_vzor_files(const char vzor[], int N, hashtable *h){
 
         if(!load_words(vzor_name, &count, h)){
             free(vzor_name);
-            return 0;
+            continue;
+            //return 0;
         }
         free(vzor_name);
     }

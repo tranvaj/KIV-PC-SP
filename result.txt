@@ -1,2 +1,3 @@
 test1.txt	H
 test2.txt	S
+test3.txt	S

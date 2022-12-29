@@ -181,7 +181,7 @@ void NB_classify_vzor_text(const char vzor[], int vzor_count, trainset *t, const
         res = NB_classify_text(vzor_name, t);
         if(res == HAM_INDEX){
             fprintf(f,"%s\tH\n",vzor_without_prefix);
-        } else if(res == SPAM_INDEX){
+        } else {//if(res == SPAM_INDEX){
             fprintf(f,"%s\tS\n",vzor_without_prefix);
         }
         free(vzor_name);

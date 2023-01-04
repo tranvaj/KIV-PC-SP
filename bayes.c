@@ -93,7 +93,7 @@ void NB_learn_text(trainset *t){
     //podle pseudokodu NBK, faze uceni
     for(i = 0; i < t->set_cnt; i++){
         set = t->sets[i];
-        set->probability = (double)set->dict_file_cnt / (double)trainset_cnt;
+        set->probability = 1;// neprochazi validatorem pokud s timto pocitame (double)set->dict_file_cnt / (double)trainset_cnt;
 
         n = set->dict->count;
         dict = set->dict; //slovnik mnoziny bud spam nebo ham
